@@ -1,0 +1,9 @@
+<F3:repeat group="{{@friends}}" value="{{@data}}">
+<li class="span4">
+    <input class="checkbox" style="display:none;" type="checkbox" name="friends[{{@data.id}}]" value="{{@data.name}}" id="friend_list_id_{{@data.id}}"/>
+    <label for="friend_list_id_{{@data.id}}">
+        <img src="https://graph.facebook.com/{{@data.id}}/picture" alt="" width="30" style="margin-right:5px; display:block; float:left;" />
+        <span>{{@data.name}}</span>
+    </label>
+</li>
+</F3:repeat>

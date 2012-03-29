@@ -1,53 +1,196 @@
 <?php
-
 require __DIR__.'/lib/base.php';
 
-F3::set('CACHE',TRUE);
+#F3::set('CACHE',TRUE);
 F3::set('DEBUG',1);
 F3::set('UI','ui/');
+F3::set('IMPORTS','imports/');
+
+F3::set('FACEBOOK.client_id', '***REMOVED***');
+F3::set('FACEBOOK.client_secret', '***REMOVED***');
+F3::set('FACEBOOK.redirect_uri', 'http://singleyet.com/login/');
+F3::set('FACEBOOK.session_key', F3::resolve('fb_{{@FACEBOOK.client_id}}_access_token'));
+
+F3::set('DB',new DB('mysql:host=localhost;port=3306;dbname=singleyet','singleyet','***REMOVED***'));
+
+F3::call('facebook/facebook.php');
+
+F3::set('Facebook', new Facebook(array(
+        'appId'  => F3::get('FACEBOOK.client_id'),
+        'secret' => F3::get('FACEBOOK.client_secret'),
+    ))
+);
+
+#session_destroy();
 
 F3::route('GET /',
-	function() {
-		F3::set('modules',
-			array(
-				'apc'=>
-					'Cache engine',
-				'gd'=>
-					'Graphics plugin',
-				'hash'=>
-					'Framework core',
-				'imap'=>
-					'Authentication',
-				'json'=>
-					'Various plugins',
-				'ldap'=>
-					'Authentication',
-				'memcache'=>
-					'Cache engine',
-				'mongo'=>
-					'M2 MongoDB mapper',
-				'pcre'=>
-					'Framework core',
-				'pdo_mssql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_mysql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_pgsql'=>
-					'SQL handler, Axon ORM, Authentication',
-				'pdo_sqlite'=>
-					'SQL handler, Axon ORM, Authentication',
-				'session'=>
-					'Framework core',
-				'sockets'=>
-					'Network plugin',
-				'xcache'=>
-					'Cache engine'
-			)
-		);
-		echo Template::serve('welcome.htm');
-	}
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        // Check if they are "logged in" by session, if they arent't,
+        // generate a Login URL and MAKE them sign in...
+        if(!$uid){
+            $scope = array(
+                        'offline_access','read_friendlists','email',
+                        'user_relationships','user_relationship_details',
+                        'friends_relationship_details','friends_relationships',
+                        'manage_friendlists','read_stream','read_friendlists'
+            );
+            $login_url = $facebook->getLoginUrl(array('redirect_uri' => F3::get('FACEBOOK.redirect_uri'),
+                                                      'scope'  => implode(',', $scope)));
+            F3::set('login_url', $login_url);
+            die(F3::render('templates/index.html'));
+        }
+
+        //If they are logged, let's render the dashboard
+
+        // We need to store "user" for later use in the template
+        // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
+        F3::set('user', new Axon('users'));
+        F3::get('user')->load(array('uid=:uid',array(':uid'=>$uid)));
+
+        // They shouldn't be able to access they dashboard if they're
+        // not in our database...
+        if(F3::get('user')->dry()){
+            F3::error('403');
+        }
+
+        die(F3::render('templates/dashboard.html'));
+    }
+);
+
+F3::route('GET /login',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        $access_token = $_SESSION[F3::get('FACEBOOK.session_key')];
+
+        try{
+            $me = $facebook->api('me');
+        } catch (FacebookApiException $e) {
+            F3::error('400');
+        }
+
+        $name = $me['name'];
+        $email = $me['email'];
+
+        $user = new Axon('users');
+        $user->load(array('uid=:uid',array(':uid'=>$uid)));
+
+        if($user->dry()){
+            // If they aren't in our db yet, create a record
+            $user=new Axon('users');
+            $user->uid=$uid;
+            $user->name = $name;
+            $user->email = $email;
+            $user->access_token = $access_token;
+            $user->save();
+        } else {
+            // If they are in our db, update their access token
+            $user=new Axon('users');
+            $user->load(array('uid=:uid',array(':uid'=>$uid)));
+            $user->access_token = $access_token;
+            $user->save();
+        }
+
+        F3::reroute('/');
+    }
+);
+
+F3::route('GET /logout',
+    function() {
+        session_destroy();
+        F3::reroute('/');
+    }
+);
+
+
+
+/* AJAX FEEDS */
+F3::route('GET /ajax/friends',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        if(F3::exists('GET.offset')){
+            $offset = F3::get('GET.offset');
+        } else {
+            $offset = 0;
+        }
+
+        try{
+            $friends = $facebook->api('me/friends',
+                                       array(
+                                            'limit' => 100,
+                                            'offset' => $offset
+                                       )
+                                  );
+        } catch (FacebookApiException $e) {
+            F3::error('500');
+        }
+
+        F3::set('friends', $friends['data']);
+        $html = Template::serve('templates/ajax/friends.html');
+        
+        die(json_encode(array('success' => true,
+                              'result' => array('html' => $html,
+                                                'offset' => ((int)$offset + 100))
+                        )
+            )
+        );
+    }
+);
+
+F3::route('GET /ajax/newsfeed',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        $user=new Axon('users');
+        $user->load(array('uid=:uid',array(':uid'=>$uid)));
+
+        if($user->dry()){
+            F3::error('403');
+        }
+
+        try{
+            $newsfeed = $facebook->api('me/home',
+                                        array(
+                                            'limit' => 50,
+                                            'filter' => 'fl_'.$user->fl_id
+                                        )
+                                    );
+        } catch (FacebookApiException $e) {
+            F3::error('400');
+        }
+
+        /*
+        function is_relationship_story($data){
+            if(array_key_exists('story', $data) && preg_match('/went from being/', $data['story'])){
+                return true;
+            }
+            return false;
+        }*/
+
+        F3::set('newsfeed', $newsfeed['data']);
+        $html = Template::serve('templates/ajax/newsfeed.html');
+        
+        die(json_encode(array('success' => true,
+                              'result' => array('html' => $html)
+                        )
+            )
+        );
+    }
 );
 
 F3::run();
-
-?>

@@ -1,0 +1,29 @@
+<F3:repeat group="{{@newsfeed}}" value="{{@data}}">
+<li>
+    <a href="#" class="username">{{@data.from.name}}</a>
+    <F3:check if="{{ isset(@data.to.0.name)?true:false }}">
+        <F3:true>
+            &raquo; {{@data.to.0.name}}
+        </F3:true>
+    </F3:check>
+    <div>
+        <div class="avatar pull-left">
+            <img src="https://graph.facebook.com/{{@data.from.id}}/picture" width="30" />
+        </div>
+        <div class="story">
+            <F3:check if="{{ isset(@data.story)?true:false }}">
+                <F3:true>
+                    {{@data.story}}
+                </F3:true>
+            </F3:check>
+        
+            <F3:check if="{{ isset(@data.message)?true:false }}">
+                <F3:true>
+                    {{@data.message}}
+                </F3:true>
+            </F3:check>
+        </div>
+    </div>
+    <div style="clear:both;"></div>
+</li>
+</F3:repeat>
