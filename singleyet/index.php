@@ -46,7 +46,7 @@ F3::route('GET /',
 
         // We need to store "user" for later use in the template
         // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
-        F3::set('user', new Axon('users'));
+        F3::set('user', new Axon('user'));
         F3::get('user')->load(array('uid=:uid',array(':uid'=>$uid)));
 
         // They shouldn't be able to access they dashboard if they're
@@ -78,12 +78,12 @@ F3::route('GET /login',
         $name = $me['name'];
         $email = $me['email'];
 
-        $user = new Axon('users');
+        $user = new Axon('user');
         $user->load(array('uid=:uid',array(':uid'=>$uid)));
 
         if($user->dry()){
             // If they aren't in our db yet, create a record
-            $user=new Axon('users');
+            $user=new Axon('user');
             $user->uid=$uid;
             $user->name = $name;
             $user->email = $email;
@@ -91,7 +91,7 @@ F3::route('GET /login',
             $user->save();
         } else {
             // If they are in our db, update their access token
-            $user=new Axon('users');
+            $user=new Axon('user');
             $user->load(array('uid=:uid',array(':uid'=>$uid)));
             $user->access_token = $access_token;
             $user->save();
@@ -156,7 +156,7 @@ F3::route('GET /ajax/newsfeed',
             F3::error('403');
         }
 
-        $user=new Axon('users');
+        $user=new Axon('user');
         $user->load(array('uid=:uid',array(':uid'=>$uid)));
 
         if($user->dry()){
