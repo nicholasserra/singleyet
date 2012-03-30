@@ -39,7 +39,17 @@ F3::route('GET /',
             $login_url = $facebook->getLoginUrl(array('redirect_uri' => F3::get('FACEBOOK.redirect_uri'),
                                                       'scope'  => implode(',', $scope)));
             F3::set('login_url', $login_url);
-            die(F3::render('templates/index.html'));
+
+            // Load the header template
+            F3::set('extra_css', array('home.css'));
+            echo Template::serve('templates/header.html');
+
+            echo F3::render('templates/index.html');
+
+            // Load the footer template
+            F3::set('extra_js', array('bootstrap-collapse.js'));
+            echo Template::serve('templates/footer.html');
+            die();
         }
 
         //If they are logged, let's render the dashboard
@@ -47,7 +57,7 @@ F3::route('GET /',
         // We need to store "user" for later use in the template
         // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
         F3::set('user', new Axon('user'));
-        F3::get('user')->load(array('uid=:uid',array(':uid'=>$uid)));
+        F3::get('user')->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         // They shouldn't be able to access they dashboard if they're
         // not in our database...
@@ -55,9 +65,22 @@ F3::route('GET /',
             F3::error('403');
         }
 
-        die(F3::render('templates/dashboard.html'));
+        F3::set('extra_css', array('dashboard.css'));
+        echo Template::serve('templates/header.html');
+
+        echo F3::render('templates/dashboard.html');
+
+        F3::set('extra_js', array('bootstrap-dropdown.js',
+                                  'dashboard.js'));
+        echo Template::serve('templates/footer.html');
+        die();
     }
 );
+
+
+
+
+/* Logging in and logging out ***********************************************/
 
 F3::route('GET /login',
     function() {
@@ -79,12 +102,12 @@ F3::route('GET /login',
         $email = $me['email'];
 
         $user = new Axon('user');
-        $user->load(array('uid=:uid',array(':uid'=>$uid)));
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
             // If they aren't in our db yet, create a record
             $user=new Axon('user');
-            $user->uid=$uid;
+            $user->fb_id=$uid;
             $user->name = $name;
             $user->email = $email;
             $user->access_token = $access_token;
@@ -92,7 +115,7 @@ F3::route('GET /login',
         } else {
             // If they are in our db, update their access token
             $user=new Axon('user');
-            $user->load(array('uid=:uid',array(':uid'=>$uid)));
+            $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
             $user->access_token = $access_token;
             $user->save();
         }
@@ -108,10 +131,11 @@ F3::route('GET /logout',
     }
 );
 
+/****************************************************************************/
 
 
-/* AJAX FEEDS */
-F3::route('GET /ajax/friends',
+
+F3::route('GET /friends',
     function() {
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
@@ -148,6 +172,10 @@ F3::route('GET /ajax/friends',
     }
 );
 
+
+
+/* Ajax Feeds ***************************************************************/
+
 F3::route('GET /ajax/newsfeed',
     function() {
         $facebook = F3::get('Facebook');
@@ -157,7 +185,7 @@ F3::route('GET /ajax/newsfeed',
         }
 
         $user=new Axon('user');
-        $user->load(array('uid=:uid',array(':uid'=>$uid)));
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
             F3::error('403');
@@ -192,5 +220,8 @@ F3::route('GET /ajax/newsfeed',
         );
     }
 );
+/****************************************************************************/
+
+
 
 F3::run();
