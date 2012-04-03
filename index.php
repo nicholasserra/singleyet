@@ -44,12 +44,6 @@ F3::route('GET /',
             F3::set('extra_css', array('home.css'));
             echo Template::serve('templates/header.html');
 
-            if($_SESSION['f_list_existed']){
-                F3::set('alert',
-                        array('header' => 'A "Single Yet?" Friend List already existed!',
-                              'message' => 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>'
-                        ));
-            }
             echo F3::render('templates/index.html');
 
             // Load the footer template
@@ -74,6 +68,12 @@ F3::route('GET /',
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
+        if(isset($_SESSION['f_list_existed'])){
+            F3::set('alert',
+                    array('header' => 'A "Single Yet?" Friend List already existed!',
+                          'message' => 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>'
+                    ));
+        }
         echo F3::render('templates/dashboard.html');
 
         F3::set('extra_js', array('bootstrap-dropdown.js',
