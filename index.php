@@ -44,6 +44,12 @@ F3::route('GET /',
             F3::set('extra_css', array('home.css'));
             echo Template::serve('templates/header.html');
 
+            if($_SESSION['f_list_existed']){
+                F3::set('alert',
+                        array('header' => 'A "Single Yet?" Friend List already existed!',
+                              'message' => 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>'
+                        ));
+            }
             echo F3::render('templates/index.html');
 
             // Load the footer template
@@ -112,6 +118,7 @@ F3::route('GET /login',
             $user->email = $email;
         }
 
+        $_SESSION['f_list_existed'] = FALSE;
         // If no friends list id for "Single Yet?" in the db
         if(empty($user->fl_id)){
             $f_list_exists = false;
@@ -132,6 +139,7 @@ F3::route('GET /login',
                 if($f_list['name'] == 'Single Yet?'){
                     $f_list_exists = true;
                     $f_list_id = $f_list['id'];
+                    $_SESSION['f_list_existed'] = TRUE;
                     // If there is a friendlist for Single Yet?, break out of loop.
                     break;
                 }
