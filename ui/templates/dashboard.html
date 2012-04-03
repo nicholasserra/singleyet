@@ -59,14 +59,14 @@
             <div class="span6">
                 <F3:check if="{{ isset(@alert)?true:false }}">
                     <F3:true>
-                        <div class="alert alert-block alert-error">
+                        <div class="alert alert-block <?php echo F3::get('alert_type'); ?>">
                             <a class="close" data-dismiss="alert" href="#">×</a>
                             <h4 class="alert-heading">
-                                <?php echo F3::get('alert')['header'];
+                                <?php echo F3::get('alert_header');
                                 ?>
                             </h4>
                             <p>
-                                <?php echo F3::get('alert')['message'];
+                                <?php echo F3::get('alert_message');
                                 ?>
                             </p>
                         </div>

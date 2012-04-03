@@ -69,10 +69,9 @@ F3::route('GET /',
         echo Template::serve('templates/header.html');
 
         if(isset($_SESSION['f_list_existed'])){
-            F3::set('alert',
-                    array('header' => 'A "Single Yet?" Friend List already existed!',
-                          'message' => 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>'
-                    ));
+            F3::set('alert_header', 'A "Single Yet?" Friend List already existed!');
+            F3::set('alert_message', 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>');
+            F3::set('alert_type', 'alert-error');
         }
         echo F3::render('templates/dashboard.html');
 
