@@ -104,21 +104,52 @@ F3::route('GET /login',
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
+        // If they aren't in our db yet, create a record
         if($user->dry()){
-            // If they aren't in our db yet, create a record
             $user=new Axon('user');
             $user->fb_id=$uid;
             $user->name = $name;
             $user->email = $email;
-            $user->access_token = $access_token;
-            $user->save();
-        } else {
-            // If they are in our db, update their access token
-            $user=new Axon('user');
-            $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
-            $user->access_token = $access_token;
-            $user->save();
         }
+
+        // If no friends list id for "Single Yet?" in the db
+        if(empty($user->fl_id)){
+            $f_list_exists = false;
+
+            try{
+                // Try and see if they already have a "Single Yet?" friendslist
+                // But maybe deleted their account from our site or somehow
+                // their friendlist field went blank in the DB
+                // And catch general Facebook errors...
+                $f_lists = $facebook->api($uid.'/friendlists');
+            } catch (FacebookApiException $e) {
+                die('Error!');
+            }
+
+            // Loop through each friendlist and
+            // see if it is the Single Yet? friendlist
+            foreach($f_lists['data'] as $f_list){
+                if($f_list['name'] == 'Single Yet?'){
+                    $f_list_exists = true;
+                    $f_list_id = $f_list['id'];
+                    // If there is a friendlist for Single Yet?, break out of loop.
+                    break;
+                }
+            }
+    
+            // If the Single Yet? friendlist doesn't exist, create it.
+            if(!$f_list_exists){
+                $f_list = $facebook->api($uid.'/friendlists',
+                                         'post',
+                                         array('name' => 'Single Yet?'));
+                $f_list_id = $list['id'];
+            }
+            
+            $user->fl_id = $f_list_id;
+        }
+        
+        $user->access_token = $access_token;
+        $user->save();
 
         F3::reroute('/');
     }
