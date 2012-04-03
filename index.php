@@ -68,7 +68,7 @@ F3::route('GET /',
         // Make user a var for template use
         F3::set('user',
                 array(
-                    'id' => F3::get('user')->fb_id,
+                    'fb_id' => F3::get('user')->fb_id,
                     'name' => F3::get('user')->name
                 )
         );
