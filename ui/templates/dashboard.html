@@ -16,8 +16,7 @@
                     <ul class="nav pull-right">
                         <li class="dropdown" id="user_menu">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#user_menu">
-                              <img src="https://graph.facebook.com/
-                                {{@user.fb_id}}/picture" width="19" />
+                              <img src="https://graph.facebook.com/{{@user.fb_id}}/picture" width="19" />
                                 {{@user.name}}
                               <b class="caret"></b>
                             </a>
@@ -57,19 +56,6 @@
             </div>
 
             <div class="span6">
-                <F3:check if="{{ isset(@alert)?true:false }}">
-                    <F3:true>
-                        <div class="alert alert-block {{@alert.type}}">
-                            <a class="close" data-dismiss="alert" href="#">×</a>
-                            <h4 class="alert-heading">
-                                {{@alert.header}}
-                            </h4>
-                            <p>
-                                {{@alert.message}}
-                            </p>
-                        </div>
-                    </F3:true>
-                </F3:check>
                 <h1>News Feed</h1>
                 <ul id="timeline">
 
