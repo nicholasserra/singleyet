@@ -70,9 +70,10 @@ F3::route('GET /',
 
         if(isset($_SESSION['f_list_existed'])){
             F3::set('alert_header', 'A "Single Yet?" Friend List already existed!');
-            F3::set('alert_message', 'If you would like to resync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>');
+            F3::set('alert_message', 'If you would like to sync your Friend List, <a href="/settings/sync/friendlist">Click Here</a>');
             F3::set('alert_type', 'alert-error');
         }
+        unset($_SESSION['f_list_existed']);
         echo F3::render('templates/dashboard.html');
 
         F3::set('extra_js', array('bootstrap-dropdown.js',
@@ -198,15 +199,17 @@ F3::route('GET /friends',
             F3::error('500');
         }
 
+        // Load the header template
+        F3::set('extra_css', array('dashboard.css'));
+        echo Template::serve('templates/header.html');
+
         F3::set('friends', $friends['data']);
-        $html = Template::serve('templates/ajax/friends.html');
-        
-        die(json_encode(array('success' => true,
-                              'result' => array('html' => $html,
-                                                'offset' => ((int)$offset + 100))
-                        )
-            )
-        );
+        F3::render('templates/ajax/friends.html');
+
+        // Load the footer template
+        F3::set('extra_js', array('bootstrap-collapse.js'));
+        echo Template::serve('templates/footer.html');
+        die();
     }
 );
 
