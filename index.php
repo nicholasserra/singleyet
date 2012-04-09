@@ -152,7 +152,7 @@ F3::route('GET /login',
                 $f_list = $facebook->api($uid.'/friendlists',
                                          'post',
                                          array('name' => 'Single Yet?'));
-                $f_list_id = $list['id'];
+                $f_list_id = $f_list['id'];
             }
             
             $user->fl_id = $f_list_id;
