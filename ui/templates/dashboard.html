@@ -1,59 +1,8 @@
-<body>
-
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                <a class="brand" href="#">Single Yet?</a>
-                <div class="nav-collapse">
-                    <ul class="nav">
-                        <li class="active"><a href="dashboard.php">Home</a>
-                    </ul>
-                    <ul class="nav pull-right">
-                        <li class="dropdown" id="user_menu">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#user_menu">
-                              <img src="https://graph.facebook.com/{{@user.fb_id}}/picture" width="19" />
-                                {{@user.name}}
-                              <b class="caret"></b>
-                            </a>
-                            <ul class="dropdown-menu">
-                              <li><a href="#">Settings</a></li>
-                              <li class="divider"></li>
-                              <li><a href="logout/">Logout</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div><!--/.nav-collapse -->
-            </div>
-        </div>
-    </div>
+<F3:include href="templates/header_navigation.html" />
 
     <div class="container">
         <div class="row">
-            <div class="span2">
-                <a id="find_friends" data-toggle="modal" href="#addFriendModal" class="btn btn-primary btn-large">Find Friends</a>
-                <div id="navigation" class="well sidebar-nav">
-                    <ul class="nav nav-list">
-                        <li class="nav-header">Navigation</li>
-                        <li class="active">
-                            <a href="#">
-                                <i class="icon-list icon-white"></i>
-                                News Feed
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-signal"></i>
-                                Relationship Stats
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            <F3:include href="templates/sidebar.html" />
 
             <div class="span6">
                 <h1>News Feed</h1>

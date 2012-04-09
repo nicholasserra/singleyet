@@ -1,0 +1,23 @@
+<F3:include href="templates/header_navigation.html" />
+
+<div class="container">
+    <div class="row">
+        <F3:include href="templates/sidebar.html" />
+
+        <div class="span6">
+            <h1>Friends</h1>
+            <ul>
+                <F3:repeat group="{{@friends}}" value="{{@data}}">
+                <li>
+                    <input class="checkbox" style="float:left;" type="checkbox" name="friends[{{@data.id}}]" value="{{@data.name}}" id="friend_list_id_{{@data.id}}"/>
+                    <label for="friend_list_id_{{@data.id}}">
+                        <img src="https://graph.facebook.com/{{@data.id}}/picture" alt="" width="30" style= "margin-right:5px; display:block; float:left;" />
+                        <span>{{@data.name}}</span>
+                    </label>
+                    <div style="clear:both;"></div>
+                </li>
+                </F3:repeat>
+            </ul>
+        </div>
+    </div>
+

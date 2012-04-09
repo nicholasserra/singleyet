@@ -78,8 +78,7 @@ F3::route('GET /',
 
         echo Template::serve('templates/dashboard.html');
 
-        F3::set('extra_js', array('bootstrap-dropdown.js',
-                                  'dashboard.js'));
+        F3::set('extra_js', array('dashboard.js'));
         echo Template::serve('templates/footer.html');
         die();
     }
@@ -205,11 +204,19 @@ F3::route('GET /friends',
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
-        F3::set('friends', $friends['data']);
-        echo Template::serve('templates/ajax/friends.html');
+        F3::set('user', new Axon('user'));
+        F3::get('user')->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
-        // Load the footer template
-        F3::set('extra_js', array('bootstrap-collapse.js'));
+        // Make user a var for template use
+        F3::set('user',
+                array(
+                    'fb_id' => F3::get('user')->fb_id,
+                    'name' => F3::get('user')->name
+                )
+        );
+        F3::set('friends', $friends['data']);
+        echo Template::serve('templates/friends.html');
+
         echo Template::serve('templates/footer.html');
         die();
     }
