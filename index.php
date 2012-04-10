@@ -21,7 +21,27 @@ F3::set('Facebook', new Facebook(array(
     ))
 );
 
-#session_destroy();
+/////////////////////////////////////////////////
+// Status Codes                                //
+/////////////////////////////////////////////////
+# 1 = Single
+# 2 = In a relationship
+# 3 = Engaged
+# 4 = Married
+# 5 = It's complicated
+# 6 = In an open relationship
+# 7 = Widowed
+# 8 = Separated
+# 9 = Divorced
+# 10 = In a civil union
+# 11 = In a domestic relationship
+# 12 = Not set
+/////////////////////////////////////////////////
+# Single = 1, 5, 6, 7, 8, 9, 12                //
+# Relationship = 2, 3, 4, 10, 11               //
+/////////////////////////////////////////////////
+
+
 
 F3::route('GET /',
     function() {
@@ -240,12 +260,21 @@ F3::route('POST /friends/add',
             $rel_ids[$result['name']] = $result['id'];
         }
 
-        $batch = array();
+        $friends_info_batch = array();
+        $add_friends_to_fl_batch = array();
         // For each friend, we push their graph url into an array
         // so we can make a batch request instead of individual requests
         foreach($friends as $k => $v){
-            array_push($batch,
-                       array('method' => 'GET', 'relative_url' => '/'.$k)
+            array_push($friends_info_batch,
+                       array('method' => 'GET',
+                             'relative_url' => '/'.$k
+                       )
+            );
+
+            array_push($add_friends_to_fl_batch,
+                        array('method' => 'POST',
+                              'relative_url' => $user->fl_id."/members/".$k
+                        )
             );
         }
 
@@ -253,11 +282,12 @@ F3::route('POST /friends/add',
             // The batch response from facebook
             $response = $facebook->api('',
                                        'POST',
-                                       array('batch' => $batch));
+                                       array('batch' => $friends_info_batch));
         } catch (FacebookApiException $e) {
             F3::error('500');
         }
 
+        // Loop over the batch responses for user info
         foreach($response as $rsp){
             $body = json_decode($rsp['body']);
             if(!isset($body->relationship_status)){
@@ -273,6 +303,16 @@ F3::route('POST /friends/add',
             $followed->user_id = $user->id;
             $followed->save();
 
+        }
+
+        // Batch request for adding all the friends they chose
+        // to the Single Yet? friendslist
+        try{
+            $facebook->api('/',
+                           'post',
+                           array('batch' => $add_friends_to_fl_batch));
+        } catch (FacebookApiException $e) {
+            F3::error('500');
         }
 
         F3::reroute('/friends');
