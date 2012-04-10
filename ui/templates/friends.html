@@ -6,18 +6,21 @@
 
         <div class="span6">
             <h1>Friends</h1>
-            <ul>
-                <F3:repeat group="{{@friends}}" value="{{@data}}">
-                <li>
-                    <input class="checkbox" style="float:left;" type="checkbox" name="friends[{{@data.id}}]" value="{{@data.name}}" id="friend_list_id_{{@data.id}}"/>
-                    <label for="friend_list_id_{{@data.id}}">
-                        <img src="https://graph.facebook.com/{{@data.id}}/picture" alt="" width="30" style= "margin-right:5px; display:block; float:left;" />
-                        <span>{{@data.name}}</span>
-                    </label>
-                    <div style="clear:both;"></div>
-                </li>
-                </F3:repeat>
-            </ul>
+            <form action="/friends/add/" method="POST">
+                <ul>
+                    <F3:repeat group="{{@friends}}" value="{{@data}}">
+                    <li>
+                        <input class="checkbox" style="float:left;" type="checkbox" name="friends[{{@data.id}}]" value="{{@data.name}}" id="friend_list_id_{{@data.id}}"/>
+                        <label for="friend_list_id_{{@data.id}}">
+                            <img src="https://graph.facebook.com/{{@data.id}}/picture" alt="" width="30" style= "margin-right:5px; display:block; float:left;" />
+                            <span>{{@data.name}}</span>
+                        </label>
+                        <div style="clear:both;"></div>
+                    </li>
+                    </F3:repeat>
+                </ul>
+                <input type="submit" class="btn" value="Update Friend List" />
+            </form>
         </div>
     </div>
 

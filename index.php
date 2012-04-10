@@ -183,17 +183,10 @@ F3::route('GET /friends',
             F3::error('403');
         }
 
-        if(F3::exists('GET.offset')){
-            $offset = F3::get('GET.offset');
-        } else {
-            $offset = 0;
-        }
-
         try{
             $friends = $facebook->api('me/friends',
                                        array(
-                                            'limit' => 100,
-                                            'offset' => $offset
+                                            'limit' => 100
                                        )
                                   );
         } catch (FacebookApiException $e) {
@@ -219,6 +212,70 @@ F3::route('GET /friends',
 
         echo Template::serve('templates/footer.html');
         die();
+    }
+);
+
+F3::route('POST /friends/add',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        // The friends that they want to add
+        $friends = F3::get('POST.friends');
+        if(count($friends) == 0){
+            F3::error('400');
+        }
+
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        $rel_status_ids = new Axon('rel_status');
+        $rel_status_ids = $rel_status_ids->afind();
+
+        $rel_ids = array();
+        foreach($rel_status_ids as $result){
+            $rel_ids[$result['name']] = $result['id'];
+        }
+
+        $batch = array();
+        // For each friend, we push their graph url into an array
+        // so we can make a batch request instead of individual requests
+        foreach($friends as $k => $v){
+            array_push($batch,
+                       array('method' => 'GET', 'relative_url' => '/'.$k)
+            );
+        }
+
+        try{
+            // The batch response from facebook
+            $response = $facebook->api('',
+                                       'POST',
+                                       array('batch' => $batch));
+        } catch (FacebookApiException $e) {
+            F3::error('500');
+        }
+
+        foreach($response as $rsp){
+            $body = json_decode($rsp['body']);
+            if(!isset($body->relationship_status)){
+                $relationship_status = 'Not set';
+            } else {
+                $relationship_status = $body->relationship_status;
+            }
+            echo '<br />';
+
+            $followed = new Axon('followed');
+            $followed->fb_id = (string) $body->id;
+            $followed->rel_status_id = $rel_ids[$body->relationship_status];
+            $followed->user_id = $user->id;
+            $followed->save();
+
+        }
+
+        F3::reroute('/friends');
     }
 );
 
