@@ -79,6 +79,17 @@ F3::route('GET /',
         F3::set('user', new Axon('user'));
         F3::get('user')->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
+        $last_login = F3::get('user')->last_login;
+
+        // Check notifications
+
+        if(F3::get('user')->email_opt == NULL){
+            $js = array('bootstrap-modal.js');
+        }
+
+        F3::get('user')->last_login = time();
+        F3::get('user')->save();
+
         // They shouldn't be able to access they dashboard if they're
         // not in our database...
         if(F3::get('user')->dry()){
@@ -98,7 +109,8 @@ F3::route('GET /',
 
         echo Template::serve('templates/dashboard.html');
 
-        F3::set('extra_js', array('dashboard.js'));
+        array_push($js, 'dashboard.js');
+        F3::set('extra_js', $js);
         echo Template::serve('templates/footer.html');
         die();
     }
@@ -249,28 +261,19 @@ F3::route('POST /friends/add',
             F3::error('400');
         }
 
-        $user = new Axon('user');
-        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
-
-        $rel_status_ids = new Axon('rel_status');
-        $rel_status_ids = $rel_status_ids->afind();
-
-        $rel_ids = array();
-        foreach($rel_status_ids as $result){
-            $rel_ids[$result['name']] = $result['id'];
-        }
-
         $friends_info_batch = array();
         $add_friends_to_fl_batch = array();
         // For each friend, we push their graph url into an array
         // so we can make a batch request instead of individual requests
         foreach($friends as $k => $v){
+            // Friend Info batch
             array_push($friends_info_batch,
                        array('method' => 'GET',
                              'relative_url' => '/'.$k
                        )
             );
 
+            // Add friend to FriendList batch
             array_push($add_friends_to_fl_batch,
                         array('method' => 'POST',
                               'relative_url' => $user->fl_id."/members/".$k
@@ -278,8 +281,8 @@ F3::route('POST /friends/add',
             );
         }
 
+        // The batch response from facebook for ``friend info``
         try{
-            // The batch response from facebook
             $response = $facebook->api('',
                                        'POST',
                                        array('batch' => $friends_info_batch));
@@ -287,7 +290,27 @@ F3::route('POST /friends/add',
             F3::error('500');
         }
 
-        // Loop over the batch responses for user info
+        /* Do DB look ups for user and rel_status after the friend info
+        // batch request is successful *******************************/
+
+        // Grab user
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        // Grab the rel_status from the db and put them into an array
+        // for comparing later
+        $rel_status_ids = new Axon('rel_status');
+        $rel_status_ids = $rel_status_ids->afind();
+
+        $rel_ids = array();
+        foreach($rel_status_ids as $result){
+            $rel_ids[$result['name']] = $result['id'];
+        }
+        /*************************************************************/
+
+        // Loop over the batch responses for friend info
+        // Check relationship status to rel_status' in our db
+        // Add them to the followed table
         foreach($response as $rsp){
             $body = json_decode($rsp['body']);
             if(!isset($body->relationship_status)){
@@ -295,7 +318,6 @@ F3::route('POST /friends/add',
             } else {
                 $relationship_status = $body->relationship_status;
             }
-            echo '<br />';
 
             $followed = new Axon('followed');
             $followed->fb_id = (string) $body->id;
