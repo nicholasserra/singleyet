@@ -84,7 +84,10 @@ F3::route('GET /',
         // Check notifications
 
         $js = array();
+
+        F3::set('first_visit', FALSE);
         if($last_login == NULL){
+            F3::set('first_visit', TRUE);
             array_push($js, 'bootstrap-modal.js');
             array_push($js, 'bootstrap-button.js');
             array_push($js, 'dashboard-modal.js');
