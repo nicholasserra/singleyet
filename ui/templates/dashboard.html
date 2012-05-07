@@ -1,19 +1,23 @@
 <F3:include href="templates/header_navigation.html" />
 
-    <div class="modal" id="myModal">
-        <div class="modal-header">
-            <h3>Attention!</h3>
-        </div>
-        <div class="modal-body">
-            <p>
-                <em>Single Yet?</em> aims to notify you as soon as one of your 
-                followers have changed their relationship status. To edit these settings and not recieve emails change your <a href="/settings/emails/">Email Settings</a>.
-            </p>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn btn-primary close-modal">Accept</a>
-        </div>
-    </div>
+    <F3:check if="{{@first_visit}}">
+        <F3:true>
+            <div class="modal" id="myModal">
+                <div class="modal-header">
+                    <h3>Attention!</h3>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <em>Single Yet?</em> aims to notify you as soon as one of your 
+                        followers have changed their relationship status. To edit these settings and not recieve emails change your <a href="/settings/emails/">Email Settings</a>.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-primary close-modal">Accept</a>
+                </div>
+            </div>
+        </F3:true>
+    </F3:check>
 
     <div class="container">
         <div class="row">
