@@ -10,3 +10,18 @@ ul{
 li{
     list-style:none;
 }
+
+.well{
+    background:#fff;
+    border:none;
+    -webkit-box-shadow: none;
+            box-shadow: none;
+}
+
+.nav-header{
+    padding: 3px 0 !important;
+}
+
+.nav-list > li > a {
+    padding: 2px 15px !important;
+}
