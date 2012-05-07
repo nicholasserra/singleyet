@@ -83,8 +83,11 @@ F3::route('GET /',
 
         // Check notifications
 
-        if(F3::get('user')->email_opt == NULL){
-            $js = array('bootstrap-modal.js');
+        $js = array();
+        if($last_login == '0000-00-00 00:00:00'){
+            array_push($js, 'bootstrap-modal.js');
+            array_push($js, 'bootstrap-button.js');
+            array_push($js, 'dashboard-modal.js');
         }
 
         F3::get('user')->last_login = time();

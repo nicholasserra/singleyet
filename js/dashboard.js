@@ -14,9 +14,4 @@
         e.preventDefault();
         get_news_feed();
     });
-
-    $('#myModal').modal({
-        'keyboard': false,
-        'backdrop': 'static'
-    });
 })();
