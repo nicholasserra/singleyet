@@ -29,4 +29,12 @@
 
                 </ul>
             </div>
+
+            <div class="span2">
+                <ul>
+                    <F3:repeat group="{{@notifications}}" value="{{@data}}">
+                        <li>{{@data.message}}</li>
+                    </F3:repeat>
+                </ul>
+            </div>
       </div>

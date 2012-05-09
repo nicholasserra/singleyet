@@ -76,12 +76,27 @@ F3::route('GET /',
 
         // We need to store "user" for later use in the template
         // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
-        F3::set('user', new Axon('user'));
-        F3::get('user')->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
-        $last_login = F3::get('user')->last_login;
+        // They shouldn't be able to access they dashboard if they're
+        // not in our database...
+        if($user->dry()){
+            F3::error('403');
+        }
 
-        // Check notifications
+        $last_login = $user->last_login;
+
+        $notis = new Axon('notification');
+        $notis = $notis->find(array('timestamp>:last_login', array(':last_login'=>$last_login)));
+        $notifications = array();
+        foreach($notis as $notification){
+            $n = array(
+                'message' => $notification->message
+            );
+            array_push($notifications, $n);
+        }
+        F3::set('notifications', $notifications);
 
         $js = array();
 
@@ -93,20 +108,14 @@ F3::route('GET /',
             array_push($js, 'dashboard-modal.js');
         }
 
-        F3::get('user')->last_login = time();
-        F3::get('user')->save();
-
-        // They shouldn't be able to access they dashboard if they're
-        // not in our database...
-        if(F3::get('user')->dry()){
-            F3::error('403');
-        }
+        $user->last_login = time();
+        $user->save();
 
         // Make user a var for template use
         F3::set('user',
                 array(
-                    'fb_id' => F3::get('user')->fb_id,
-                    'name' => F3::get('user')->name
+                    'fb_id' => $user->fb_id,
+                    'name' => $user->name
                 )
         );
 
@@ -151,7 +160,7 @@ F3::route('GET /login',
 
         // If they aren't in our db yet, create a record
         if($user->dry()){
-            $user=new Axon('user');
+            $user = new Axon('user');
             $user->fb_id=$uid;
             $user->name = $name;
             $user->email = $email;
@@ -267,6 +276,10 @@ F3::route('POST /friends/add',
             F3::error('400');
         }
 
+        // Grab user for Friendlist adding batch call
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
         $friends_info_batch = array();
         $add_friends_to_fl_batch = array();
         // For each friend, we push their graph url into an array
@@ -296,15 +309,11 @@ F3::route('POST /friends/add',
             F3::error('500');
         }
 
-        /* Do DB look ups for user and rel_status after the friend info
-        // batch request is successful *******************************/
+        /* Do DB look up for rel_status after the friend info
+        // batch request is successful *********************/
 
-        // Grab user
-        $user = new Axon('user');
-        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
-
-        // Grab the rel_status from the db and put them into an array
-        // for comparing later
+        // Grab the rel_status from the db and put them into
+        // an array for comparing later
         $rel_status_ids = new Axon('rel_status');
         $rel_status_ids = $rel_status_ids->afind();
 
@@ -312,7 +321,7 @@ F3::route('POST /friends/add',
         foreach($rel_status_ids as $result){
             $rel_ids[$result['name']] = $result['id'];
         }
-        /*************************************************************/
+        /***************************************************/
 
         // Loop over the batch responses for friend info
         // Check relationship status to rel_status' in our db
@@ -350,6 +359,29 @@ F3::route('POST /friends/add',
 
 
 /* Ajax Feeds ***************************************************************/
+F3::route('GET /ajax/notifications',
+    function(){
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        if($user->dry()){
+            F3::error('403');
+        }
+
+        $notifications = array();
+        die(json_encode(array('success' => true,
+                              'result' => array('html' => '')
+                        )
+            )
+        );
+    }
+);
 
 F3::route('GET /ajax/newsfeed',
     function() {
@@ -359,7 +391,7 @@ F3::route('GET /ajax/newsfeed',
             F3::error('403');
         }
 
-        $user=new Axon('user');
+        $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
