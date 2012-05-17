@@ -88,7 +88,13 @@ F3::route('GET /',
         $last_login = $user->last_login;
 
         $notis = new Axon('notification');
-        $notis = $notis->find(array('timestamp>:last_login', array(':last_login'=>$last_login)));
+        $notis = $notis->find(
+            array(
+                'timestamp>:last_login AND user_id=:user_id',
+                array(':last_login'=>$last_login, ':user_id'=>$user->id)
+            )
+        );
+
         $notifications = array();
         foreach($notis as $notification){
             $n = array(
@@ -359,29 +365,6 @@ F3::route('POST /friends/add',
 
 
 /* Ajax Feeds ***************************************************************/
-F3::route('GET /ajax/notifications',
-    function(){
-        $facebook = F3::get('Facebook');
-        $uid = $facebook->getUser();
-        if(!$uid){
-            F3::error('403');
-        }
-
-        $user = new Axon('user');
-        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
-
-        if($user->dry()){
-            F3::error('403');
-        }
-
-        $notifications = array();
-        die(json_encode(array('success' => true,
-                              'result' => array('html' => '')
-                        )
-            )
-        );
-    }
-);
 
 F3::route('GET /ajax/newsfeed',
     function() {
