@@ -336,7 +336,7 @@ F3::route('POST /friends/add',
 
             $followed = new Axon('followed');
             $followed->fb_id = (string) $body->id;
-            $followed->rel_status_id = $rel_ids[$body->relationship_status];
+            $followed->rel_status_id = $rel_ids[$relationship_status];
             $followed->user_id = $user->id;
             $followed->save();
 
