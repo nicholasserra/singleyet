@@ -185,6 +185,7 @@ F3::route('GET /notifications',
                 )
         );
 
+        F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
         F3::set('page', 'notifications');
