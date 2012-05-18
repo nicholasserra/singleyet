@@ -11,7 +11,14 @@
                     <li class="friend<F3:check if="{{@ctr>24}}"><F3:true> hidden</F3:true></F3:check>">
                         <div <F3:check if="{{@ctr>24}}"><F3:true>data-img="https://graph.facebook.com/{{@data.id}}/picture?type=large"</F3:true><F3:false>style="background-image:url('https://graph.facebook.com/{{@data.id}}/picture?type=large');"</F3:false></F3:check>></div>
                         <span>{{@data.name}}</span><br />
-                        <button class="btn btn-success">Add</button>
+                        <F3:check if="{{@data.is_following}}">
+                            <F3:true>
+                                <button data-id="{{@data.id}}" class="remove_friend btn btn-danger">Remove</button>
+                            </F3:true>
+                            <F3:false>
+                                <button data-id="{{@data.id}}" class="add_friend btn btn-success">Add</button>
+                            </F3:false>
+                        </F3:check>
                     </li>
                     </F3:repeat>
                 </ul>

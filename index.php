@@ -306,16 +306,35 @@ F3::route('GET /friends',
         F3::set('extra_css', array('dashboard.css', 'friends.css'));
         echo Template::serve('templates/header.html');
 
-        F3::set('user', new Axon('user'));
-        F3::get('user')->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+        $user = new Axon('user');
+        $user = $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         // Make user a var for template use
         F3::set('user',
                 array(
-                    'fb_id' => F3::get('user')->fb_id,
-                    'name' => F3::get('user')->name
+                    'fb_id' => $user->fb_id,
+                    'name' => $user->name
                 )
         );
+
+        $followed = new Axon('followed');
+        $followed = $followed->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
+
+        $following = array();
+        foreach($followed as $f){
+            $following[$f->fb_id] = 1;
+        }
+
+        $i = 0;
+        foreach($friends['data'] as $friend){
+            $friend['is_following'] = 0;
+            if(array_key_exists($friend['id'], $following)){
+                $friend['is_following'] = 1;
+            }
+            $friends['data'][$i] = $friend;
+            $i++;
+        }
+
         F3::set('friends', $friends['data']);
         echo Template::serve('templates/friends.html');
 
@@ -333,47 +352,29 @@ F3::route('POST /friends/add',
             F3::error('403');
         }
 
-        // The friends that they want to add
-        $friends = F3::get('POST.friends');
-        if(count($friends) == 0){
+        // The ID of the friend they want to add
+        $id = F3::get('POST.id');
+        if(!isset($id) || empty($id)){
             F3::error('400');
         }
 
-        // Grab user for Friendlist adding batch call
+        // Grab user for Friendlist adding
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
-        $friends_info_batch = array();
-        $add_friends_to_fl_batch = array();
-        // For each friend, we push their graph url into an array
-        // so we can make a batch request instead of individual requests
-        foreach($friends as $k => $v){
-            // Friend Info batch
-            array_push($friends_info_batch,
-                       array('method' => 'GET',
-                             'relative_url' => '/'.$k
-                       )
-            );
-
-            // Add friend to FriendList batch
-            array_push($add_friends_to_fl_batch,
-                        array('method' => 'POST',
-                              'relative_url' => $user->fl_id."/members/".$k
-                        )
-            );
+        if($user->dry()){
+            F3::error('403');
         }
 
-        // The batch response from facebook for ``friend info``
         try{
-            $response = $facebook->api('',
-                                       'POST',
-                                       array('batch' => $friends_info_batch));
+            $info = $facebook->api('/'.$id);
+            $add_to_fl = $facebook->api($user->fl_id.'/members/'.$id, 'POST');
         } catch (FacebookApiException $e) {
             F3::error('500');
         }
 
         /* Do DB look up for rel_status after the friend info
-        // batch request is successful *********************/
+        // request is successful ***************************/
 
         // Grab the rel_status from the db and put them into
         // an array for comparing later
@@ -386,39 +387,67 @@ F3::route('POST /friends/add',
         }
         /***************************************************/
 
-        // Loop over the batch responses for friend info
-        // Check relationship status to rel_status' in our db
-        // Add them to the followed table
-        foreach($response as $rsp){
-            $body = json_decode($rsp['body']);
-            if(!isset($body->relationship_status)){
-                $relationship_status = 'Not set';
-            } else {
-                $relationship_status = $body->relationship_status;
-            }
-
-            $followed = new Axon('followed');
-            $followed->fb_id = (string) $body->id;
-            $followed->rel_status_id = $rel_ids[$relationship_status];
-            $followed->user_id = $user->id;
-            $followed->save();
-
+        if(!isset($info['relationship_status'])){
+            $relationship_status = 'Not set';
+        } else {
+            $relationship_status = $info['relationship_status'];
         }
 
-        // Batch request for adding all the friends they chose
-        // to the Single Yet? friendslist
+        $followed = new Axon('followed');
+        $followed->fb_id = (string) $info['id'];
+        $followed->rel_status_id = $rel_ids[$relationship_status];
+        $followed->user_id = $user->id;
+        $followed->save();
+
+        die(json_encode(
+                array(
+                    'success' => true,
+                    'result' => array(
+                        'name' => $info['name']
+                    )
+                )
+            )
+        );
+    }
+);
+
+F3::route('POST /friends/remove',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        // The ID of the friend they want to add
+        $id = F3::get('POST.id');
+        if(!isset($id) || empty($id)){
+            F3::error('400');
+        }
+
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        if($user->dry()){
+            F3::error('403');
+        }
+
         try{
-            $facebook->api('/',
-                           'post',
-                           array('batch' => $add_friends_to_fl_batch));
+            $facebook->api($user->fl_id.'/members/'.$id, 'DELETE');
         } catch (FacebookApiException $e) {
             F3::error('500');
         }
 
-        F3::reroute('/friends');
+        $followed = new Axon('followed');
+        $followed->load(
+            array(
+                'fb_id=:fb_id AND user_id=:user_id',
+                array(':fb_id'=>$id, ':user_id'=>$user->id)
+            )
+        );
+        $followed->erase();
     }
 );
-
 
 
 /* Ajax Feeds ***************************************************************/
