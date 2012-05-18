@@ -237,11 +237,7 @@ F3::route('GET /friends',
         }
 
         try{
-            $friends = $facebook->api('me/friends',
-                                       array(
-                                            'limit' => 100
-                                       )
-                                  );
+            $friends = $facebook->api('me/friends');
         } catch (FacebookApiException $e) {
             F3::error('500');
         }

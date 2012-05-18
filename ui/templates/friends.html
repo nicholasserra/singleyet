@@ -4,23 +4,17 @@
     <div class="row">
         <F3:include href="templates/sidebar.html" />
 
-        <div class="span6">
+        <div class="span10">
             <h1>Friends</h1>
-            <form action="/friends/add/" method="POST">
                 <ul>
-                    <F3:repeat group="{{@friends}}" value="{{@data}}">
-                    <li>
-                        <input class="checkbox" style="float:left;" type="checkbox" name="friends[{{@data.id}}]" value="{{@data.name}}" id="friend_list_id_{{@data.id}}"/>
-                        <label for="friend_list_id_{{@data.id}}">
-                            <img src="https://graph.facebook.com/{{@data.id}}/picture" alt="" width="30" style= "margin-right:5px; display:block; float:left;" />
-                            <span>{{@data.name}}</span>
-                        </label>
-                        <div style="clear:both;"></div>
+                    <F3:repeat group="{{@friends}}" value="{{@data}}" counter="{{@ctr}}">
+                    <li style="width:225px; height:150px; float:left;<F3:check if="{{@ctr>24}}"><F3:true>display:none;</F3:true></F3:check>">
+                        <div style= "margin-right:5px; width:100px; float:left; height:100px; display:block;background:url('https://graph.facebook.com/{{@data.id}}/picture?type=large') no-repeat center center transparent;"></div>
+                        <span>{{@data.name}}</span><br />
+                        <button class="btn btn-success">Add</button>
                     </li>
                     </F3:repeat>
                 </ul>
-                <input type="submit" class="btn" value="Update Friend List" />
-            </form>
         </div>
     </div>
 
