@@ -446,6 +446,8 @@ F3::route('POST /friends/remove',
             )
         );
         $followed->erase();
+
+        die(json_encode(array('success' => true)));
     }
 );
 
