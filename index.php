@@ -128,9 +128,68 @@ F3::route('GET /',
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
+        F3::set('page', 'dashboard');
         echo Template::serve('templates/dashboard.html');
 
         array_push($js, 'dashboard.js');
+        F3::set('extra_js', $js);
+        echo Template::serve('templates/footer.html');
+        die();
+    }
+);
+
+F3::route('GET /notifications',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+
+        // We need to store "user" for later use in the template
+        // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        // They shouldn't be able to access they dashboard if they're
+        // not in our database...
+        if($user->dry()){
+            F3::error('403');
+        }
+
+        $notis = new Axon('notification');
+        $notis = $notis->find(
+            array(
+                'user_id=:user_id',
+                array(':user_id'=>$user->id)
+            )
+        );
+
+        $notifications = array();
+        foreach($notis as $notification){
+            $n = array(
+                'message' => $notification->message
+            );
+            array_push($notifications, $n);
+        }
+        F3::set('notifications', $notifications);
+
+        $js = array();
+
+        // Make user a var for template use
+        F3::set('user',
+                array(
+                    'fb_id' => $user->fb_id,
+                    'name' => $user->name
+                )
+        );
+
+        echo Template::serve('templates/header.html');
+
+        F3::set('page', 'notifications');
+        echo Template::serve('templates/notifications.html');
+
         F3::set('extra_js', $js);
         echo Template::serve('templates/footer.html');
         die();

@@ -1,0 +1,14 @@
+<F3:include href="templates/header_navigation.html" />
+    <div class="container">
+        <div class="row">
+            <F3:include href="templates/sidebar.html" />
+
+            <div class="span8">
+                <h1>Notifications</h1>
+                <ul id="timeline">
+                    <F3:repeat group="{{@notifications}}" value="{{@data}}">
+                        <li>{{@data.message}}</li>
+                    </F3:repeat>
+                </ul>
+            </div>
+      </div>
