@@ -8,8 +8,8 @@
             <h1>Friends</h1>
                 <ul>
                     <F3:repeat group="{{@friends}}" value="{{@data}}" counter="{{@ctr}}">
-                    <li style="width:225px; height:150px; float:left;<F3:check if="{{@ctr>24}}"><F3:true>display:none;</F3:true></F3:check>">
-                        <div style= "margin-right:5px; width:100px; float:left; height:100px; display:block;background:url('https://graph.facebook.com/{{@data.id}}/picture?type=large') no-repeat center center transparent;"></div>
+                    <li class="friend<F3:check if="{{@ctr>24}}"><F3:true> hidden</F3:true></F3:check>">
+                        <div <F3:check if="{{@ctr>24}}"><F3:true>data-img="https://graph.facebook.com/{{@data.id}}/picture?type=large"</F3:true><F3:false>style="background-image:url('https://graph.facebook.com/{{@data.id}}/picture?type=large');"</F3:false></F3:check>></div>
                         <span>{{@data.name}}</span><br />
                         <button class="btn btn-success">Add</button>
                     </li>

@@ -1,0 +1,15 @@
+.friend{
+    width:225px;
+    height:150px;
+    float:left;
+}
+
+    .friend div{
+        margin-right:5px;
+        width:100px;
+        float:left;
+        height:100px;
+        display:block;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }

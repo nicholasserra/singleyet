@@ -303,7 +303,7 @@ F3::route('GET /friends',
         }
 
         // Load the header template
-        F3::set('extra_css', array('dashboard.css'));
+        F3::set('extra_css', array('dashboard.css', 'friends.css'));
         echo Template::serve('templates/header.html');
 
         F3::set('user', new Axon('user'));
@@ -319,6 +319,7 @@ F3::route('GET /friends',
         F3::set('friends', $friends['data']);
         echo Template::serve('templates/friends.html');
 
+        F3::set('extra_js', array('friends.js'));
         echo Template::serve('templates/footer.html');
         die();
     }

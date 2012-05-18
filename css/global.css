@@ -25,3 +25,7 @@ li{
 .nav-list > li > a {
     padding: 2px 15px !important;
 }
+
+.hidden{
+    display:none;
+}
