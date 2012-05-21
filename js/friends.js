@@ -25,11 +25,16 @@ $(window).scroll(function(){
             return;
         }
 
+        $t.parent('li').append('<img src="img/ajax-loader.gif" />');
+
         $.ajax({
             url: '/friends/add/',
             type: 'POST',
             data: {'id': id},
             dataType: 'json',
+            complete: function(){
+              $t.parent('li').find('img').remove();
+            },
             success: function(){
                 $t.removeClass('add_friend btn-success');
                 $t.addClass('remove_friend btn-danger');
@@ -48,11 +53,16 @@ $(window).scroll(function(){
             return;
         }
 
+        $t.parent('li').append('<img src="img/ajax-loader.gif" />');
+
         $.ajax({
             url: '/friends/remove/',
             type: 'POST',
             data: {'id': id},
             dataType: 'json',
+            complete: function(){
+              $t.parent('li').find('img').remove();
+            },
             success: function(){
                 $t.removeClass('remove_friend btn-danger');
                 $t.addClass('add_friend btn-success');
