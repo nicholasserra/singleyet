@@ -335,6 +335,13 @@ F3::route('GET /friends',
             $i++;
         }
 
+        #check php5.3 we can use anonymous functions
+        function sortByOrder($a, $b) {
+            return $b['is_following'] - $a['is_following'];
+        }
+
+        usort($friends['data'], 'sortByOrder');
+
         F3::set('friends', $friends['data']);
         echo Template::serve('templates/friends.html');
 
