@@ -13,10 +13,10 @@
                         <span>{{@data.name}}</span><br />
                         <F3:check if="{{@data.is_following}}">
                             <F3:true>
-                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="remove_friend btn btn-danger">Remove</button>
+                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="remove_friend btn btn-danger"><i class="icon-white icon-eye-close"></i> Unfollow</button>
                             </F3:true>
                             <F3:false>
-                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="add_friend btn btn-success">Add</button>
+                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="add_friend btn btn-success"><i class="icon-white icon-eye-open"></i> Follow</button>
                             </F3:false>
                         </F3:check>
                     </li>

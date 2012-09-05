@@ -3,16 +3,17 @@
     <div id="navigation" class="well sidebar-nav">
         <ul class="nav nav-list">
             <li class="nav-header">Navigation</li>
+
+            <li<F3:check if="{{@page=='notifications'}}"><F3:true> class="active"</F3:true></F3:check>>
+                <a href="/notifications/">
+                    <i class="icon-exclamation-sign<F3:check if="{{@page=='notifications'}}"><F3:true> icon-white</F3:true></F3:check>"></i>
+                    Notifications
+                </a>
+            </li>
             <li<F3:check if="{{@page=='dashboard'}}"><F3:true> class="active"</F3:true></F3:check>>
                 <a href="/">
                     <i class="icon-list<F3:check if="{{@page=='dashboard'}}"><F3:true> icon-white</F3:true></F3:check>"></i>
                     News Feed
-                </a>
-            </li>
-            <li<F3:check if="{{@page=='notifications'}}"><F3:true> class="active"</F3:true></F3:check>>
-                <a href="/notifications">
-                    <i class="icon-list<F3:check if="{{@page=='notifications'}}"><F3:true> icon-white</F3:true></F3:check>"></i>
-                    Notifications
                 </a>
             </li>
         </ul>
