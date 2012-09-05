@@ -24,24 +24,14 @@
             <F3:include href="templates/sidebar.html" />
 
             <div class="span6">
-                <h1>News Feed</h1>
+                <h1>Notifications</h1>
                 <ul id="timeline">
-
+                    <F3:repeat group="{{@notifications}}" value="{{@data}}">
+                        <li class="notification">
+                            <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" /> {{@data.message}}
+                            <div class="clearfix"></div>
+                        </li>
+                    </F3:repeat>
                 </ul>
-            </div>
-
-            <div class="span4">
-                <div class="well">
-                    <table class="table table-bordered">
-                        <tr>
-                            <th>Notifications</th>
-                        </tr>
-                        <F3:repeat group="{{@notifications}}" value="{{@data}}">
-                            <tr>
-                                <td>{{@data.message}}</td>
-                            </tr>
-                        </F3:repeat>
-                    </table>
-                </div>
             </div>
       </div>

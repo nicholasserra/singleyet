@@ -29,6 +29,10 @@
       margin: 0 10px 0;
   }
 
+  #timeline .notification{
+    line-height: 50px;
+  }
+
 
 
 /*

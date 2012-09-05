@@ -77,7 +77,7 @@ F3::route('GET /',
         // We need to store "user" for later use in the template
         // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
         $user = new Axon('user');
-        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+        $user->load(array('fb_id=:fb_id', array(':fb_id'=>$uid)));
 
         // They shouldn't be able to access they dashboard if they're
         // not in our database...
@@ -88,16 +88,12 @@ F3::route('GET /',
         $last_login = $user->last_login;
 
         $notis = new Axon('notification');
-        $notis = $notis->find(
-            array(
-                'timestamp>:last_login AND user_id=:user_id',
-                array(':last_login'=>$last_login, ':user_id'=>$user->id)
-            )
-        );
+        $notis = $notis->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
 
         $notifications = array();
         foreach($notis as $notification){
             $n = array(
+                'fb_id' => $notification->fb_id,
                 'message' => $notification->message
             );
             array_push($notifications, $n);
@@ -128,17 +124,16 @@ F3::route('GET /',
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
-        F3::set('page', 'dashboard');
+        F3::set('page', 'notifications');
         echo Template::serve('templates/dashboard.html');
 
-        array_push($js, 'dashboard.js');
         F3::set('extra_js', $js);
         echo Template::serve('templates/footer.html');
         die();
     }
 );
 
-F3::route('GET /notifications',
+F3::route('GET /newsfeed',
     function() {
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
@@ -146,53 +141,42 @@ F3::route('GET /notifications',
             F3::error('403');
         }
 
-
-        // We need to store "user" for later use in the template
-        // http://fatfree.sourceforge.net/page/data-mappers/beyond-crud
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
-        // They shouldn't be able to access they dashboard if they're
-        // not in our database...
         if($user->dry()){
             F3::error('403');
         }
 
-        $notis = new Axon('notification');
-        $notis = $notis->find(
-            array(
-                'user_id=:user_id',
-                array(':user_id'=>$user->id)
-            )
-        );
-
-        $notifications = array();
-        foreach($notis as $notification){
-            $n = array(
-                'message' => $notification->message
-            );
-            array_push($notifications, $n);
+        try{
+            $newsfeed = $facebook->api('me/home',
+                                        array(
+                                            'limit' => 50,
+                                            'filter' => 'fl_'.$user->fl_id
+                                        )
+                                    );
+        } catch (FacebookApiException $e) {
+            F3::error('400');
         }
-        F3::set('notifications', $notifications);
 
-        $js = array();
+        /*
+        function is_relationship_story($data){
+            if(array_key_exists('story', $data) && preg_match('/went from being/', $data['story'])){
+                return true;
+            }
+            return false;
+        }*/
 
-        // Make user a var for template use
-        F3::set('user',
-                array(
-                    'fb_id' => $user->fb_id,
-                    'name' => $user->name
-                )
-        );
 
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
 
-        F3::set('page', 'notifications');
-        echo Template::serve('templates/notifications.html');
+        F3::set('newsfeed', $newsfeed['data']);
+        echo Template::serve('templates/newsfeed.html');
 
-        F3::set('extra_js', $js);
+        F3::set('extra_js', array());
         echo Template::serve('templates/footer.html');
+
         die();
     }
 );
@@ -287,6 +271,7 @@ F3::route('GET /logout',
 /****************************************************************************/
 
 
+/* Friends ******************************************************************/
 
 F3::route('GET /friends',
     function() {
@@ -458,51 +443,21 @@ F3::route('POST /friends/remove',
     }
 );
 
+/****************************************************************************/
+
+
+
 
 /* Ajax Feeds ***************************************************************/
 
-F3::route('GET /ajax/newsfeed',
+
+/****************************************************************************/
+
+
+/* Settings *****************************************************************/
+F3::route('GET /settings',
     function() {
-        $facebook = F3::get('Facebook');
-        $uid = $facebook->getUser();
-        if(!$uid){
-            F3::error('403');
-        }
 
-        $user = new Axon('user');
-        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
-
-        if($user->dry()){
-            F3::error('403');
-        }
-
-        try{
-            $newsfeed = $facebook->api('me/home',
-                                        array(
-                                            'limit' => 50,
-                                            'filter' => 'fl_'.$user->fl_id
-                                        )
-                                    );
-        } catch (FacebookApiException $e) {
-            F3::error('400');
-        }
-
-        /*
-        function is_relationship_story($data){
-            if(array_key_exists('story', $data) && preg_match('/went from being/', $data['story'])){
-                return true;
-            }
-            return false;
-        }*/
-
-        F3::set('newsfeed', $newsfeed['data']);
-        $html = Template::serve('templates/ajax/newsfeed.html');
-        
-        die(json_encode(array('success' => true,
-                              'result' => array('html' => $html)
-                        )
-            )
-        );
     }
 );
 /****************************************************************************/

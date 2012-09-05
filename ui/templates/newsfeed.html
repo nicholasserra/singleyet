@@ -1,0 +1,36 @@
+<F3:include href="templates/header_navigation.html" />
+    <div class="container">
+        <div class="row">
+            <F3:include href="templates/sidebar.html" />
+
+            <div class="span6">
+                <h1>News Feed</h1>
+                <ul id="timeline">
+                    <F3:repeat group="{{@newsfeed}}" value="{{@data}}">
+                        <li>
+                            <img class="avatar" src="https://graph.facebook.com/{{@data.from.id}}/picture" width="50" height="50" />
+                            <a href="https://facebook.com/{{@data.from.id}}" class="username">{{@data.from.name}}</a>
+                            <F3:check if="{{ isset(@data.to.0.name)?true:false }}">
+                                <F3:true>
+                                    &raquo; {{@data.to.0.name}}
+                                </F3:true>
+                            </F3:check>
+                            <div class="story">
+                                <F3:check if="{{ isset(@data.story)?true:false }}">
+                                    <F3:true>
+                                        {{@data.story}}
+                                    </F3:true>
+                                </F3:check>
+                                
+                                <F3:check if="{{ isset(@data.message)?true:false }}">
+                                    <F3:true>
+                                        {{@data.message}}
+                                    </F3:true>
+                                </F3:check>
+                            </div>
+                            <div style="clear:both;"></div>
+                        </li>
+                        </F3:repeat>
+                </ul>
+            </div>
+      </div>

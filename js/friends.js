@@ -36,7 +36,7 @@ $(window).scroll(function(){
                 $t.removeClass('add_friend btn-success');
                 $t.addClass('remove_friend btn-danger');
                 $t.button('reset');
-                $t.text('Remove');
+                $t.html('<i class="icon-white icon-eye-close"></i> Unfollow');
             }
         });
     });
@@ -62,7 +62,7 @@ $(window).scroll(function(){
                 $t.removeClass('remove_friend btn-danger');
                 $t.addClass('add_friend btn-success');
                 $t.button('reset');
-                $t.text('Add');
+                $t.html('<i class="icon-white icon-eye-open"></i> Follow');
             }
         });
     });
