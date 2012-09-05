@@ -167,6 +167,14 @@ F3::route('GET /newsfeed',
             return false;
         }*/
 
+        // Make user a var for template use
+        F3::set('user',
+                array(
+                    'fb_id' => $user->fb_id,
+                    'name' => $user->name
+                )
+        );
+
 
         F3::set('extra_css', array('dashboard.css'));
         echo Template::serve('templates/header.html');
