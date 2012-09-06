@@ -92,7 +92,16 @@ F3::route('GET /',
 
         $notifications = array();
         foreach($notis as $notification){
+            $is_new = FALSE;
+            if($notification->timestamp > $last_login){
+                # Check if any of the notifications being displayed hasn't
+                # been seen by the user yet and mark it "new"
+                $is_new = TRUE;
+            }
+
+            # Return fb_id for link up to Facebook image
             $n = array(
+                'is_new' => $is_new,
                 'fb_id' => $notification->fb_id,
                 'message' => $notification->message
             );
@@ -110,6 +119,8 @@ F3::route('GET /',
             array_push($js, 'dashboard-modal.js');
         }
 
+        # Update the users "last_login" time since everything we needed to do
+        # with the previous login time has been completed
         $user->last_login = time();
         $user->save();
 

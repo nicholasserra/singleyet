@@ -20,18 +20,21 @@
     margin:0;
 }
 
-  #timeline li{
-      padding:15px 0px;
-      border-top:1px solid #eeeeee;
-  }
-  #timeline li .avatar{
-      float:left;
-      margin: 0 10px 0;
-  }
+    #timeline li{
+        padding:15px 0px;
+        border-top:1px solid #eeeeee;
+    }
+    #timeline li .avatar{
+        float:left;
+        margin: 0 10px 0;
+    }
 
-  #timeline .notification{
-    line-height: 50px;
-  }
+    #timeline .notification{
+        line-height: 50px;
+    }
+        #timeline .notification.new-item{
+            background:#FCF8E3;
+        }
 
 
 

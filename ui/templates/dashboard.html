@@ -27,7 +27,7 @@
                 <h1>Notifications</h1>
                 <ul id="timeline">
                     <F3:repeat group="{{@notifications}}" value="{{@data}}">
-                        <li class="notification">
+                        <li class="notification<F3:check if="{{@data.is_new}}"><F3:true> new-item</F3:true></F3:check>">
                             <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" /> {{@data.message}}
                             <div class="clearfix"></div>
                         </li>
