@@ -88,7 +88,7 @@ F3::route('GET /',
         $last_login = $user->last_login;
 
         $notis = new Axon('notification');
-        $notis = $notis->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
+        $notis = $notis->find(array('user_id=:user_id', array(':user_id'=>$user->id)), 'timestamp DESC');
 
         $notifications = array();
         foreach($notis as $notification){
@@ -180,6 +180,7 @@ F3::route('GET /newsfeed',
         echo Template::serve('templates/header.html');
 
         F3::set('newsfeed', $newsfeed['data']);
+        F3::set('page', 'newsfeed');
         echo Template::serve('templates/newsfeed.html');
 
         F3::set('extra_js', array());
@@ -336,6 +337,7 @@ F3::route('GET /friends',
         usort($friends['data'], 'sortByOrder');
 
         F3::set('friends', $friends['data']);
+        F3::set('page', 'friends');
         echo Template::serve('templates/friends.html');
 
         F3::set('extra_js', array('friends.js'));
