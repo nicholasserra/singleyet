@@ -1,7 +1,13 @@
 .friend{
-    width:225px;
-    height:150px;
-    float:left;
+    width: 225px;
+    height: 100px;
+    float: left;
+    padding: 5px 5px;
+    margin: 6px 3px;
+}
+
+.friend:hover{
+    background:#ECEFF5;
 }
 
     .friend div{
@@ -16,3 +22,7 @@
     .friend img{
         margin-left:5px;
     }
+
+.friend_data{
+    margin-left:4px;
+}

@@ -1,8 +1,8 @@
 $(window).scroll(function(){
     if($(window).scrollTop() == $(document).height() - $(window).height()){
-        var $friends = $('.friend.hidden').slice(0, 16);
+        var $friends = $('.friend.hidden').slice(0, 24);
         $friends.each(function(){
-            var $div = $(this).children('div'),
+            var $div = $(this).children('.friend_avatar'),
                 img = $div.data('img');
 
             console.log($div);

@@ -7,58 +7,81 @@
                 <h1>News Feed</h1>
                 <hr />
                 <ul id="timeline">
-                    <F3:repeat group="{{@newsfeed}}" value="{{@data}}">
-                        {{* Make sure there is a story or message *}}
-                        <F3:check if="{{ isset(@data.story)?true:false || isset(@data.message)?true:false }}">
-                            <F3:true>
-                                <li>
-                                    <div class="pull-left">
-                                        <img src="https://graph.facebook.com/{{@data.from.id}}/picture" width="50" height="50" />
-                                    </div>
+                    <F3:check if="{{@newsfeed}}">
+                        <F3:true>
+                            <F3:repeat group="{{@newsfeed}}" value="{{@data}}">
+                                {{* Make sure there is a story or message *}}
+                                <F3:check if="{{ isset(@data.story)?true:false || isset(@data.message)?true:false }}">
+                                    <F3:true>
+                                        <li>
+                                            <div class="pull-left">
+                                                <img src="https://graph.facebook.com/{{@data.from.id}}/picture" width="50" height="50" />
+                                            </div>
 
-                                    <div class="story">
-                                        <a href="https://facebook.com/{{@data.from.id}}" target="_blank" class="username">{{@data.from.name}}</a>
-                                        <F3:check if="{{ isset(@data.to)?true:false }}">
-                                            <F3:true>
-                                                &raquo; 
-                                                <F3:repeat group="{{@data.to.data}}" value="{{@user}}">
-                                                    <a href="https://facebook.com/{{@user.id}}" target="_blank" class="username">{{@user.name}}</a>
-                                                </F3:repeat>
-                                            </F3:true>
-                                        </F3:check>
-                                        <div class="message">
-                                            <F3:check if="{{ isset(@data.story)?true:false }}">
-                                                <F3:true>
-                                                    {{@data.story}}
-                                                </F3:true>
-                                            </F3:check>
-                                            
-                                            <F3:check if="{{ isset(@data.message)?true:false }}">
-                                                <F3:true>
-                                                    {{@data.message}}
-                                                </F3:true>
-                                            </F3:check>
-                                        </div>
+                                            <div class="story">
+                                                <a href="https://facebook.com/{{@data.from.id}}" target="_blank" class="username">{{@data.from.name}}</a>
+                                                <F3:check if="{{ isset(@data.to)?true:false }}">
+                                                    <F3:true>
+                                                        &raquo; 
+                                                        <F3:repeat group="{{@data.to.data}}" value="{{@user}}">
+                                                            <a href="https://facebook.com/{{@user.id}}" target="_blank" class="username">{{@user.name}}</a>
+                                                        </F3:repeat>
+                                                    </F3:true>
+                                                </F3:check>
+                                                <div class="message">
+                                                    <F3:check if="{{ isset(@data.picture)?true:false && isset(@data.link)?true:false}}">
+                                                        <F3:true>
+                                                            <p>
+                                                                <a href="{{@data.link}}"><img class="img img-polaroid" src="{{@data.picture}}" /></a>
+                                                            </p>
+                                                        </F3:true>
+                                                    </F3:check>
 
-                                        <F3:check if="{{ isset(@data.actions)?true:false }}">
-                                            <F3:true>
-                                                <div class="actions">
-                                                    <ul>
-                                                    <F3:repeat group="{{@data.actions}}" value="{{@action}}">
-                                                        <li>
-                                                            <a href="{{@action.link}}" target="_blank">{{@action.name}}</a>
-                                                        </li>
-                                                    </F3:repeat>
-                                                    </ul>
+                                                    <F3:check if="{{ isset(@data.story)?true:false }}">
+                                                        <F3:true>
+                                                            <p>
+                                                                {{@data.story}}
+                                                            </p>
+                                                        </F3:true>
+                                                    </F3:check>
+                                                    
+                                                    <F3:check if="{{ isset(@data.message)?true:false }}">
+                                                        <F3:true>
+                                                            <p>
+                                                                {{@data.message}}
+                                                            </p>
+                                                        </F3:true>
+                                                    </F3:check>
                                                 </div>
-                                            </F3:true>
-                                        </F3:check>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </li>
-                            </F3:true>
-                        </F3:check>
-                    </F3:repeat>
+
+                                                <F3:check if="{{ isset(@data.actions)?true:false }}">
+                                                    <F3:true>
+                                                        <div class="actions">
+                                                            <ul>
+                                                            <F3:repeat group="{{@data.actions}}" value="{{@action}}">
+                                                                <li>
+                                                                    <a href="{{@action.link}}" target="_blank">{{@action.name}}</a>
+                                                                </li>
+                                                            </F3:repeat>
+                                                            </ul>
+                                                        </div>
+                                                    </F3:true>
+                                                </F3:check>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </li>
+                                    </F3:true>
+                                </F3:check>
+                            </F3:repeat>
+                        </F3:true>
+                        <F3:false>
+                            <li>
+                                <div class="alert">
+                                    You currently have no items in your News Feed.
+                                </div>
+                            </li>
+                        </F3:false>
+                    </F3:check>
                 </ul>
             </div>
       </div>

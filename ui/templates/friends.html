@@ -9,17 +9,19 @@
             <hr />
                 <ul>
                     <F3:repeat group="{{@friends}}" value="{{@data}}" counter="{{@ctr}}">
-                    <li class="friend<F3:check if="{{@ctr>24}}"><F3:true> hidden</F3:true></F3:check>">
-                        <div <F3:check if="{{@ctr>24}}"><F3:true>data-img="https://graph.facebook.com/{{@data.id}}/picture?type=large"</F3:true><F3:false>style="background-image:url('https://graph.facebook.com/{{@data.id}}/picture?type=large');"</F3:false></F3:check>></div>
-                        <span>{{@data.name}}</span><br />
-                        <F3:check if="{{@data.is_following}}">
-                            <F3:true>
-                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="remove_friend btn btn-danger"><i class="icon-white icon-eye-close"></i> Unfollow</button>
-                            </F3:true>
-                            <F3:false>
-                                <button data-id="{{@data.id}}" data-loading-text="loading..." class="add_friend btn btn-success"><i class="icon-white icon-eye-open"></i> Follow</button>
-                            </F3:false>
-                        </F3:check>
+                    <li class="friend<F3:check if="{{@ctr>50}}"><F3:true> hidden</F3:true></F3:check>">
+                        <div class="friend_avatar" <F3:check if="{{@ctr>50}}"><F3:true>data-img="https://graph.facebook.com/{{@data.id}}/picture?type=large"</F3:true><F3:false>style="background-image:url('https://graph.facebook.com/{{@data.id}}/picture?type=large');"</F3:false></F3:check>></div>
+                        <div class="friend_data">
+                            <span>{{@data.name}}</span><br />
+                            <F3:check if="{{@data.is_following}}">
+                                <F3:true>
+                                    <button data-id="{{@data.id}}" data-loading-text="loading..." class="remove_friend btn btn-block btn-danger"><i class="icon-white icon-eye-close"></i> Unfollow</button>
+                                </F3:true>
+                                <F3:false>
+                                    <button data-id="{{@data.id}}" data-loading-text="loading..." class="add_friend btn btn-block btn-success"><i class="icon-white icon-eye-open"></i> Follow</button>
+                                </F3:false>
+                            </F3:check>
+                        </div>
                     </li>
                     </F3:repeat>
                 </ul>

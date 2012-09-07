@@ -8,10 +8,10 @@
 
     <div class="container">
         <div class="row">
-            <F3:check if="{{@has_followed}}">
-                <F3:false>
+            <F3:check if="{{@first_visit}}">
+                <F3:true>
                     <F3:include href="templates/modals/find_friends.html" />
-                </F3:false>
+                </F3:true>
             </F3:check>
 
             <F3:include href="templates/sidebar.html" />
@@ -20,17 +20,28 @@
                 <h1>Notifications</h1>
                 <hr />
                 <ul id="timeline">
-                    <F3:repeat group="{{@notifications}}" value="{{@data}}">
-                        <li class="notification<F3:check if="{{@data.is_new}}"><F3:true> new-item</F3:true></F3:check>">
-                            <div class="pull-left">
-                                <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" />
-                            </div>
-                            <div class="story">
-                                {{@data.message}}
-                            </div>
-                            <div class="clearfix"></div>
-                        </li>
-                    </F3:repeat>
+                    <F3:check if="{{@notifications}}">
+                        <F3:true>
+                            <F3:repeat group="{{@notifications}}" value="{{@data}}">
+                                <li class="notification<F3:check if="{{@data.is_new}}"><F3:true> new-item</F3:true></F3:check>">
+                                    <div class="pull-left">
+                                        <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" />
+                                    </div>
+                                    <div class="story">
+                                        {{@data.message}}
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </li>
+                            </F3:repeat>
+                        </F3:true>
+                        <F3:false>
+                            <li>
+                                <div class="alert">
+                                    You currently have no notifications.
+                                </div>
+                            </li>
+                        </F3:false>
+                    </F3:check>
                 </ul>
             </div>
 

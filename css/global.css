@@ -29,7 +29,12 @@ hr{
 
 .nav .dropdown{
     font-weight: normal !important;
+    color:#fff !important;
 }
+    .nav .dropdown img{
+        margin-right:6px;
+        vertical-align: middle;
+    }
 
 footer{
     font-size: 12px;

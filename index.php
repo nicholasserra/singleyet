@@ -42,6 +42,47 @@ F3::set('Facebook', new Facebook(array(
 /////////////////////////////////////////////////
 
 
+function _get_f_list_id($uid){
+    $facebook = F3::get('Facebook');
+    $f_list_exists = false;
+
+    try{
+        // Try and see if they already have a "Single Yet?" friendslist
+        // But maybe deleted their account from our site or somehow
+        // their friendlist field went blank in the DB
+        // And catch general Facebook errors...
+        $f_lists = $facebook->api($uid.'/friendlists');
+    } catch (FacebookApiException $e) {
+        F3::error('500');
+    }
+
+    // Loop through each friendlist and
+    // see if it is the Single Yet? friendlist
+    foreach($f_lists['data'] as $f_list){
+        if($f_list['name'] == 'Single Yet?'){
+            $f_list_exists = true;
+            $f_list_id = $f_list['id'];
+
+            // If there is a friendlist for Single Yet?, break out of loop.
+            break;
+        }
+    }
+
+    // If the Single Yet? friendlist doesn't exist, create it.
+    if(!$f_list_exists){
+        $f_list = $facebook->api($uid.'/friendlists',
+                                 'post',
+                                 array('name' => 'Single Yet?'));
+        $f_list_id = $f_list['id'];
+    }
+
+    return $f_list_id;
+}
+
+function _create_alert_message($type='alert', $message=''){
+    return array('type' => $type, 'message' => $message);
+}
+
 
 F3::route('GET /',
     function() {
@@ -105,12 +146,6 @@ F3::route('GET /',
         }
         F3::set('notifications', $notifications);
 
-        // Get number of people followed so we can decide whether to display
-        // 'FIND FRIENDS' banner or not
-        $followed = new Axon('followed');
-        $followed = $followed->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
-        F3::set('has_followed', (count($followed) > 0) ? TRUE : FALSE);
-
         $js = array();
 
         F3::set('first_visit', FALSE);
@@ -119,12 +154,6 @@ F3::route('GET /',
             array_push($js, 'bootstrap-modal.js');
             array_push($js, 'bootstrap-button.js');
             array_push($js, 'dashboard-modal.js');
-        }
-
-        if($last_login != NULL && !F3::get('has_followed')){
-            array_push($js, 'bootstrap-modal.js');
-            array_push($js, 'bootstrap-button.js');
-            array_push($js, 'dashboard-friends-modal.js');
         }
 
         $user->last_login = time();
@@ -245,38 +274,7 @@ F3::route('GET /login',
         $_SESSION['f_list_existed'] = FALSE;
         // If no friends list id for "Single Yet?" in the db
         if(empty($user->fl_id)){
-            $f_list_exists = false;
-
-            try{
-                // Try and see if they already have a "Single Yet?" friendslist
-                // But maybe deleted their account from our site or somehow
-                // their friendlist field went blank in the DB
-                // And catch general Facebook errors...
-                $f_lists = $facebook->api($uid.'/friendlists');
-            } catch (FacebookApiException $e) {
-                die('Error!');
-            }
-
-            // Loop through each friendlist and
-            // see if it is the Single Yet? friendlist
-            foreach($f_lists['data'] as $f_list){
-                if($f_list['name'] == 'Single Yet?'){
-                    $f_list_exists = true;
-                    $f_list_id = $f_list['id'];
-
-                    // If there is a friendlist for Single Yet?, break out of loop.
-                    break;
-                }
-            }
-    
-            // If the Single Yet? friendlist doesn't exist, create it.
-            if(!$f_list_exists){
-                $f_list = $facebook->api($uid.'/friendlists',
-                                         'post',
-                                         array('name' => 'Single Yet?'));
-                $f_list_id = $f_list['id'];
-            }
-            
+            $f_list_id = _get_f_list_id($uid);
             $user->fl_id = $f_list_id;
         }
         
@@ -389,7 +387,16 @@ F3::route('POST /friends/add',
             $info = $facebook->api('/'.$id);
             $add_to_fl = $facebook->api($user->fl_id.'/members/'.$id, 'POST');
         } catch (FacebookApiException $e) {
-            F3::error('500');
+            $f_list_id = _get_f_list_id($uid);
+            $user->fl_id = $f_list_id;
+            $user->save();
+
+            try{
+                $info = $facebook->api('/'.$id);
+                $add_to_fl = $facebook->api($user->fl_id.'/members/'.$id, 'POST');
+            } catch (FacebookApiException $e) {
+                F3::error('500');
+            }
         }
 
         /* Do DB look up for rel_status after the friend info
@@ -452,9 +459,16 @@ F3::route('POST /friends/remove',
         }
 
         try{
-            $facebook->api($user->fl_id.'/members/'.$id, 'DELETE');
+            $rsp = $facebook->api($user->fl_id.'/members/'.$id, 'DELETE');
         } catch (FacebookApiException $e) {
-            F3::error('500');
+            // For some reason, this is the error Facebook throws if a
+            // Friendlist does not exist. Idiots...
+            if($e != 'OAuthException: (#297) Requires extended permission: manage_friendlists'){
+                F3::error('500');
+            } else {
+                $user->fl_id = '';
+                $user->save();
+            }
         }
 
         $followed = new Axon('followed');
@@ -484,7 +498,68 @@ F3::route('POST /friends/remove',
 /* Settings *****************************************************************/
 F3::route('GET /settings',
     function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
 
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        if($user->dry()){
+            F3::error('403');
+        }
+
+        // Make user a var for template use
+        F3::set('user',
+                array(
+                    'fb_id' => $user->fb_id,
+                    'name' => $user->name,
+                    'email_opt' => $user->email_opt
+                )
+        );
+
+        if(isset($_SESSION['message'])){
+            F3::set('message', $_SESSION['message']);
+            F3::set('extra_js', array('bootstrap-alert.js'));
+            unset($_SESSION['message']);
+        }
+
+        F3::set('extra_css', array('setings.css'));
+        echo Template::serve('templates/header.html');
+
+        F3::set('page', 'general_settings');
+        echo Template::serve('templates/settings.html');
+
+        echo Template::serve('templates/footer.html');
+
+        die();
+    }
+);
+
+F3::route('POST /settings/save',
+    function() {
+        $facebook = F3::get('Facebook');
+        $uid = $facebook->getUser();
+        if(!$uid){
+            F3::error('403');
+        }
+
+        $user = new Axon('user');
+        $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
+
+        if($user->dry()){
+            F3::error('403');
+        }
+
+        $email_opt = (F3::get('POST.email_opt') == 'on') ? TRUE : False;
+        $user->email_opt = $email_opt;
+
+        $user->save();
+
+        $_SESSION['message'] = _create_alert_message('alert-success', 'Settings updated successfully!');
+        F3::reroute('/settings/');
     }
 );
 /****************************************************************************/

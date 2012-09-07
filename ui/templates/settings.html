@@ -1,0 +1,35 @@
+<F3:include href="templates/header_navigation.html" />
+    <div class="container">
+        <div class="row">
+            <F3:include href="templates/sidebar.html" />
+
+            <div class="span6">
+                <h1>Settings</h1>
+                <hr />
+
+                <F3:check if="{{@message}}">
+                    <F3:true>
+                        <div class="alert {{@message.type}}">
+                            <a href="#" class="close" data-dismiss="alert">&times;</a>
+                            {{@message.message}}
+                        </div>
+                    </F3:true>
+                </F3:check>
+
+                <form action="/settings/save/" method="POST" class="settings_form">
+                    <fieldset>
+                        <legend>Email Notifications</legend>
+                        <div class="control-group">
+                            <label for="email_opt" class="checkbox">
+                             <input type="checkbox" name="email_opt" id="email_opt"<F3:check if="{{@user.email_opt}}"><F3:true> checked="checked"</F3:true></F3:check> /> Receive email notifications when people you follow change their relationship status?
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="form-actions">
+                        <input type="submit" class="btn btn-primary pull-right">Save</button>
+                        <div class="clearfix"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
