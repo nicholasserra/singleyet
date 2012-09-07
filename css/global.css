@@ -11,11 +11,8 @@ li{
     list-style:none;
 }
 
-.well{
-    background:#fff;
-    border:none;
-    -webkit-box-shadow: none;
-            box-shadow: none;
+hr{
+    margin: 10px 0;
 }
 
 .nav-header{
@@ -32,4 +29,8 @@ li{
 
 .nav .dropdown{
     font-weight: normal !important;
+}
+
+footer{
+    font-size: 12px;
 }

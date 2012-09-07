@@ -2,36 +2,47 @@
 
     <F3:check if="{{@first_visit}}">
         <F3:true>
-            <div class="modal" id="myModal">
-                <div class="modal-header">
-                    <h3>Attention!</h3>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        <em>Single Yet?</em> aims to notify you as soon as one of your 
-                        followers have changed their relationship status. To edit these settings and not recieve emails change your <a href="/settings/emails/">Email Settings</a>.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-primary close-modal">Accept</a>
-                </div>
-            </div>
+            <F3:include href="templates/modals/email_opt.html" />
         </F3:true>
     </F3:check>
 
     <div class="container">
         <div class="row">
+            <F3:check if="{{@has_followed}}">
+                <F3:false>
+                    <F3:include href="templates/modals/find_friends.html" />
+                </F3:false>
+            </F3:check>
+
             <F3:include href="templates/sidebar.html" />
 
             <div class="span6">
                 <h1>Notifications</h1>
+                <hr />
                 <ul id="timeline">
                     <F3:repeat group="{{@notifications}}" value="{{@data}}">
                         <li class="notification<F3:check if="{{@data.is_new}}"><F3:true> new-item</F3:true></F3:check>">
-                            <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" /> {{@data.message}}
+                            <div class="pull-left">
+                                <img class="avatar" src="https://graph.facebook.com/{{@data.fb_id}}/picture" width="50" height="50" />
+                            </div>
+                            <div class="story">
+                                {{@data.message}}
+                            </div>
                             <div class="clearfix"></div>
                         </li>
                     </F3:repeat>
                 </ul>
             </div>
+
+
+
+            <F3:exclude>
+            <div class="span4">
+                <ul class="nav nav-tabs nav-stacked">
+                    <li class="nav-header">Filter</li>
+                    <li><a href="#">Single</a></li>
+                    <li><a href="#">Taken</a></li>
+                </ul>
+            </div>
+            </F3:exclude>
       </div>

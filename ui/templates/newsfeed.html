@@ -5,32 +5,60 @@
 
             <div class="span6">
                 <h1>News Feed</h1>
+                <hr />
                 <ul id="timeline">
                     <F3:repeat group="{{@newsfeed}}" value="{{@data}}">
-                        <li>
-                            <img class="avatar" src="https://graph.facebook.com/{{@data.from.id}}/picture" width="50" height="50" />
-                            <a href="https://facebook.com/{{@data.from.id}}" class="username">{{@data.from.name}}</a>
-                            <F3:check if="{{ isset(@data.to.0.name)?true:false }}">
-                                <F3:true>
-                                    &raquo; {{@data.to.0.name}}
-                                </F3:true>
-                            </F3:check>
-                            <div class="story">
-                                <F3:check if="{{ isset(@data.story)?true:false }}">
-                                    <F3:true>
-                                        {{@data.story}}
-                                    </F3:true>
-                                </F3:check>
-                                
-                                <F3:check if="{{ isset(@data.message)?true:false }}">
-                                    <F3:true>
-                                        {{@data.message}}
-                                    </F3:true>
-                                </F3:check>
-                            </div>
-                            <div style="clear:both;"></div>
-                        </li>
-                        </F3:repeat>
+                        {{* Make sure there is a story or message *}}
+                        <F3:check if="{{ isset(@data.story)?true:false || isset(@data.message)?true:false }}">
+                            <F3:true>
+                                <li>
+                                    <div class="pull-left">
+                                        <img src="https://graph.facebook.com/{{@data.from.id}}/picture" width="50" height="50" />
+                                    </div>
+
+                                    <div class="story">
+                                        <a href="https://facebook.com/{{@data.from.id}}" target="_blank" class="username">{{@data.from.name}}</a>
+                                        <F3:check if="{{ isset(@data.to)?true:false }}">
+                                            <F3:true>
+                                                &raquo; 
+                                                <F3:repeat group="{{@data.to.data}}" value="{{@user}}">
+                                                    <a href="https://facebook.com/{{@user.id}}" target="_blank" class="username">{{@user.name}}</a>
+                                                </F3:repeat>
+                                            </F3:true>
+                                        </F3:check>
+                                        <div class="message">
+                                            <F3:check if="{{ isset(@data.story)?true:false }}">
+                                                <F3:true>
+                                                    {{@data.story}}
+                                                </F3:true>
+                                            </F3:check>
+                                            
+                                            <F3:check if="{{ isset(@data.message)?true:false }}">
+                                                <F3:true>
+                                                    {{@data.message}}
+                                                </F3:true>
+                                            </F3:check>
+                                        </div>
+
+                                        <F3:check if="{{ isset(@data.actions)?true:false }}">
+                                            <F3:true>
+                                                <div class="actions">
+                                                    <ul>
+                                                    <F3:repeat group="{{@data.actions}}" value="{{@action}}">
+                                                        <li>
+                                                            <a href="{{@action.link}}" target="_blank">{{@action.name}}</a>
+                                                        </li>
+                                                    </F3:repeat>
+                                                    </ul>
+                                                </div>
+                                            </F3:true>
+                                        </F3:check>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </li>
+                            </F3:true>
+                        </F3:check>
+                    </F3:repeat>
                 </ul>
             </div>
       </div>

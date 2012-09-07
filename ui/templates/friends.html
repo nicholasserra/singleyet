@@ -6,6 +6,7 @@
 
         <div class="span10">
             <h1>Friends</h1>
+            <hr />
                 <ul>
                     <F3:repeat group="{{@friends}}" value="{{@data}}" counter="{{@ctr}}">
                     <li class="friend<F3:check if="{{@ctr>24}}"><F3:true> hidden</F3:true></F3:check>">

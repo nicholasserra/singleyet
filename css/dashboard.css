@@ -24,16 +24,40 @@
         padding:15px 0px;
         border-top:1px solid #eeeeee;
     }
-    #timeline li .avatar{
-        float:left;
-        margin: 0 10px 0;
-    }
+        #timeline li:first-child{
+            border:none;
+        }
+        #timeline li .story{
+            margin-left: 60px;
+            font-size:12px;
+        }
+            #timeline li .story .username{
+                font-weight: bold;
+                font-size:13px;
+            }
+
 
     #timeline .notification{
         line-height: 50px;
     }
         #timeline .notification.new-item{
             background:#FCF8E3;
+        }
+
+    #timeline .actions li{
+        float:left;
+        border:none;
+        padding:8px 0 0;
+        list-style-type: disc;
+        margin-left: 25px;
+    }
+        #timeline .actions li:first-child{
+            list-style: none;
+            margin:0;
+        }
+
+        #timeline .actions a{
+            font-size:11px;
         }
 
 

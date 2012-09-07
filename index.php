@@ -94,12 +94,8 @@ F3::route('GET /',
         foreach($notis as $notification){
             $is_new = FALSE;
             if($notification->timestamp > $last_login){
-                # Check if any of the notifications being displayed hasn't
-                # been seen by the user yet and mark it "new"
                 $is_new = TRUE;
             }
-
-            # Return fb_id for link up to Facebook image
             $n = array(
                 'is_new' => $is_new,
                 'fb_id' => $notification->fb_id,
@@ -108,6 +104,12 @@ F3::route('GET /',
             array_push($notifications, $n);
         }
         F3::set('notifications', $notifications);
+
+        // Get number of people followed so we can decide whether to display
+        // 'FIND FRIENDS' banner or not
+        $followed = new Axon('followed');
+        $followed = $followed->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
+        F3::set('has_followed', (count($followed) > 0) ? TRUE : FALSE);
 
         $js = array();
 
@@ -119,8 +121,12 @@ F3::route('GET /',
             array_push($js, 'dashboard-modal.js');
         }
 
-        # Update the users "last_login" time since everything we needed to do
-        # with the previous login time has been completed
+        if($last_login != NULL && !F3::get('has_followed')){
+            array_push($js, 'bootstrap-modal.js');
+            array_push($js, 'bootstrap-button.js');
+            array_push($js, 'dashboard-friends-modal.js');
+        }
+
         $user->last_login = time();
         $user->save();
 
