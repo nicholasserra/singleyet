@@ -526,7 +526,7 @@ F3::route('GET /settings',
             unset($_SESSION['message']);
         }
 
-        F3::set('extra_css', array('setings.css'));
+        F3::set('extra_css', array('settings.css'));
         echo Template::serve('templates/header.html');
 
         F3::set('page', 'general_settings');
