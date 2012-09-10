@@ -153,6 +153,7 @@ F3::route('GET /',
 
         $js = array();
 
+        // If first visit, include js needed for modals
         F3::set('first_visit', FALSE);
         if($last_login == NULL){
             F3::set('first_visit', TRUE);
@@ -161,8 +162,16 @@ F3::route('GET /',
             array_push($js, 'dashboard-modal.js');
         }
 
+        // Update users last login time since everything we needed the prev
+        // login time for was completed
         $user->last_login = time();
         $user->save();
+
+        // Get number for people user follows
+        $followed = new Axon('followed');
+        $followed = $followed->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
+        $followed_count = count($followed);
+        F3::set('followed_count', $followed_count);
 
         // Make user a var for template use
         F3::set('user',
