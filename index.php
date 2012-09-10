@@ -83,6 +83,11 @@ function _create_alert_message($type='alert', $message=''){
     return array('type' => $type, 'message' => $message);
 }
 
+function _force_logout(){
+    session_destroy();
+    F3::reroute('/');
+}
+
 
 F3::route('GET /',
     function() {
@@ -123,7 +128,7 @@ F3::route('GET /',
         // They shouldn't be able to access they dashboard if they're
         // not in our database...
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         $last_login = $user->last_login;
@@ -184,14 +189,14 @@ F3::route('GET /newsfeed',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         try{
@@ -246,7 +251,7 @@ F3::route('GET /login',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         $access_token = $_SESSION[F3::get('FACEBOOK.session_key')];
@@ -302,7 +307,7 @@ F3::route('GET /friends',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         try{
@@ -366,7 +371,7 @@ F3::route('POST /friends/add',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         // The ID of the friend they want to add
@@ -380,7 +385,7 @@ F3::route('POST /friends/add',
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         try{
@@ -442,7 +447,7 @@ F3::route('POST /friends/remove',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         // The ID of the friend they want to add
@@ -455,7 +460,7 @@ F3::route('POST /friends/remove',
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         try{
@@ -501,14 +506,14 @@ F3::route('GET /settings',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         // Make user a var for template use
@@ -543,14 +548,14 @@ F3::route('POST /settings/save',
         $facebook = F3::get('Facebook');
         $uid = $facebook->getUser();
         if(!$uid){
-            F3::error('403');
+            _force_logout();
         }
 
         $user = new Axon('user');
         $user->load(array('fb_id=:fb_id',array(':fb_id'=>$uid)));
 
         if($user->dry()){
-            F3::error('403');
+            _force_logout();
         }
 
         $email_opt = (F3::get('POST.email_opt') == 'on') ? TRUE : False;
