@@ -15,9 +15,25 @@ hr{
     margin: 10px 0;
 }
 
+.singleyet{
+    letter-spacing: -1px;
+    font-family: 'Rochester', cursive;
+    font-size: 19px;
+}
+
 .nav-header{
     padding: 3px 0 !important;
 }
+
+.brand{
+    font-family: 'Rochester', cursive;
+    letter-spacing: -1px;
+    font-size: 22px !important;
+}
+
+    .brand img{
+        vertical-align: baseline;
+    }
 
 .nav-list > li > a {
     padding: 2px 15px !important;

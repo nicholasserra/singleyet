@@ -169,8 +169,7 @@ F3::route('GET /',
 
         // Get number for people user follows
         $followed = new Axon('followed');
-        $followed = $followed->find(array('user_id=:user_id', array(':user_id'=>$user->id)));
-        $followed_count = count($followed);
+        $followed_count = count($followed->find(array('user_id=:user_id', array(':user_id'=>$user->id))));
         F3::set('followed_count', $followed_count);
 
         // Make user a var for template use
@@ -226,6 +225,11 @@ F3::route('GET /newsfeed',
             }
             return false;
         }*/
+
+        // Get number for people user follows
+        $followed = new Axon('followed');
+        $followed_count = count($followed->find(array('user_id=:user_id', array(':user_id'=>$user->id))));
+        F3::set('followed_count', $followed_count);
 
         // Make user a var for template use
         F3::set('user',

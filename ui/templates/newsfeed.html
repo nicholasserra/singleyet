@@ -60,7 +60,7 @@
                                                             <ul>
                                                             <F3:repeat group="{{@data.actions}}" value="{{@action}}">
                                                                 <li>
-                                                                    <a href="{{@action.link}}" target="_blank">{{@action.name}}</a>
+                                                                    <a href="{{@action.link}}" class="no_follow" target="_blank">{{@action.name}}</a>
                                                                 </li>
                                                             </F3:repeat>
                                                             </ul>
@@ -84,4 +84,6 @@
                     </F3:check>
                 </ul>
             </div>
+
+            <F3:include href="templates/right_sidebar.html" />
       </div>

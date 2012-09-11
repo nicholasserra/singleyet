@@ -14,6 +14,7 @@
     #timeline li{
         padding:15px 7px;
         border-top:1px solid #eeeeee;
+        margin: 5px 0;
     }
         #timeline li:first-child{
             border:none;
@@ -40,7 +41,7 @@
         border:none;
         padding:8px 0 0;
         list-style-type: disc;
-        margin-left: 25px;
+        margin: 0 0 0 25px;
     }
         #timeline .actions li:first-child{
             list-style: none;
